@@ -1,0 +1,2142 @@
+<!DOCTYPE html>
+<meta charset='utf-8'>
+
+<head>
+    <title> Bubble Tea: A Breakdown </title>
+    <meta name="title" content="Bubble Tea: A Breakdown of All Its Unique Flavor and Topping Combos">
+    <meta name="description" content="Meet bubble tea—Taiwan's beloved drink that comes with hundreds of tasty flavors and toppings. The best part: you can customize boba tea to your liking.">
+    <meta name="author" content="Julia Janicki, Daisy Chung">
+    <meta name="keywords" content="Bubble tea, boba, Taiwan, data, data visualization">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans+Condensed:wght@300;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="shortcut icon" type="image/png" href="./img/favicon.png" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.1/d3.min.js"></script>
+    <script src='./textures.min.js'></script>
+
+    <style>
+
+        #loading {
+            top: 0;
+            left: 0;
+            position: fixed;
+            display: block;
+            opacity: .7;
+            background-color: #fff;
+            z-index: 99;
+            width: 100%;
+            text-align: center;
+            height: 100%;
+        }
+        #loading-image {
+            position: relative;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 50vh;
+            z-index: 100;
+            width:100px;
+        }
+
+
+        body{
+            font-family: 'Libre Franklin', sans-serif;
+            background-color: #fdfbf9;
+            overflow-x: hidden;
+        }
+        svg {
+            font-family: 'Open Sans Condensed', sans-serif;
+        }
+
+        circle:hover {
+            cursor: pointer;
+        }
+
+        a{
+            color:black !important;
+        }
+        a:hover{
+            font-weight: 500;
+            transition: all 0.5s ease;
+        }
+
+        .footer a{
+            color:white !important;
+        }
+        .footer a:hover{
+            font-weight: 500;
+            transition: all 0.5s ease;
+        }
+
+        .topBar{
+            background-color: #68301b;
+            height:30px;
+            width:100%;
+            color:white;
+            position: fixed;
+            z-index: 1000;
+            opacity: 0.8;
+            transition: all 0.5s ease;
+        }
+
+        .topBar p{
+            margin: auto;
+            line-height: 30px;
+            text-align: center;
+        }
+
+        #topBarClose{
+            position: absolute;
+            top: 3px;
+            right: 8px;
+            font-weight: 700;
+        }
+
+        #topBarClose:hover{
+            cursor: pointer;
+            transition: all 0.5s ease;
+        }
+
+
+        #section1{
+            background-image: url("./img/header.png");
+            background-repeat: no-repeat;
+            background-position: center;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+
+        #section1 .intro{
+            padding-top:200px;
+        }
+
+        .introContainer{
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: justify;
+        }
+
+        .introContainer p{
+            padding-left: 20px;
+            padding-right: 20px;
+            margin-top: 50px;
+        }
+
+        #headerImg{
+            position:absolute;
+            width:100%;
+            height: auto;
+        }
+
+        #title{
+            max-width: 700px;
+            font-weight: 700;
+            font-size: 65px;
+            line-height: 80px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #byline{
+            font-size: 16px;
+        }
+
+        .scroll-arrow {
+            padding-top:50px;
+            animation: arrowAnim 5s ease-in-out infinite;
+            color: black;
+            left: 50%;
+            margin: 30px 0 30px -15px;
+            text-align: center;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+
+        .arrow-text {
+            display: inline-block;
+            animation: blink 5s ease-in-out infinite;
+        }
+        @keyframes arrowAnim {
+            0%, 100% {
+                transform: translateY(1rem);
+            }
+            50% {
+                transform: translateY(-1rem);
+            }
+        }
+
+        .base{
+            padding:10px;
+            margin-left: 10px;
+            margin-right: 10px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            width:140px;
+            height:140px;
+            box-shadow: 1px 1px 5px -3px rgba(0, 0, 0, .2);
+            border-radius: 30px;
+            background-color:white;
+        }
+
+        .basehover:hover{
+            /* in order to disable hover when tree is drawing */
+            cursor:pointer;
+            box-shadow: 1px 1px 5px -1px rgba(0, 0, 0, 0.4);
+            transition: all 0.5s ease;
+        }
+
+        .imgContainer {
+            position: relative;
+            text-align: center;
+            display: inline-block;
+        }
+        .centered {
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .basetext{
+            position: absolute;
+            top: 80%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            line-height: 18px;
+            font-size: 14px;
+        }
+
+        .basetext:hover{
+            cursor: default;
+        }
+
+        .toppingsText{
+            line-height: 20px;
+            font-weight: 600;
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size:14px;
+            line-height: 16px;
+        }
+
+        .tempText,.sweetText{
+            font-size: 13px;
+            line-height: 14px;
+            font-weight: 600;
+            position: absolute;
+            top: 90%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .strawText, .bagText{
+            font-size: 13px;
+            line-height: 14px;
+            font-weight: 600;
+            position: absolute;
+            top: 82%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .toppingsTextSmall{
+            font-size: 12px;
+            line-height: 11px;
+            font-weight: 600;
+        }
+
+        .tempSweetTextSmall{
+            font-size: 11px;
+            line-height: 10px;
+            margin-top: 13px;
+            font-weight: 600;
+        }
+
+        .instructions{
+            font-size:1.3em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .instructionIntro{
+            margin-top: 50px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: justify;
+            margin-bottom: 50px;
+        }
+
+        .instructionIntro p{
+            margin-top: 50px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        #clickInstructionWrapper{
+            position: relative;
+        }
+
+        #clickInstruction{
+            position: absolute;
+            bottom:170px;
+            left: 50%;
+            -webkit-transform: translateX(-50%);
+            transform: translateX(-50%);
+            background-color: white;
+            padding: 5px 8px;
+            opacity: 0.7;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 1px 1px 5px -1px rgba(0, 0, 0, 0.4);
+            display: none;
+            transition: all 1s ease;
+        }
+
+        .drinkNameBig{
+            background-color: white;
+            padding: 5px 8px;
+            opacity: 0.7;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 1px 1px 5px -1px rgba(0, 0, 0, 0.4);
+            transition: all 1s ease;
+        }
+
+        .number{
+            display: inline-block;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            background-color: #68301b;
+            color:white;
+            margin-right: 10px;
+            padding-top: -2px;
+            font-weight: 400;
+        }
+
+        .numberSmall{
+            display: inline-block;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            background-color: #68301b;
+            color:white;
+            margin-right: 10px;
+            padding-top: 4px;
+        }
+
+        .finalSelection{
+            color:#68301b;
+            font-weight: 700;
+            margin-bottom: -10px;
+        }
+
+        #finalToppingWrapper, #finalTempSweetWrapper{
+            margin-bottom: 10px;
+        }
+
+        .toppings{
+            margin-top: 10px;
+            margin-bottom: 10px;
+            margin-left: 10px;
+            margin-right: 10px;
+            width:140px;
+            height:140px;
+            box-shadow: 1px 1px 5px -3px rgba(0, 0, 0, .5);
+            border-radius: 50%;
+            background-color: #f9f8f2;
+            transition: all 1s ease;
+        }
+
+        .toppings:hover, .temperature:hover{
+            cursor:pointer;
+            box-shadow: 1px 1px 5px -1px rgba(0, 0, 0, 0.6);
+            transition: all 0.5s ease;
+        }
+
+        .toppingsSmall{
+            margin-top: -5px;
+            margin-bottom: 5px;
+            margin-left: 5px;
+            margin-right: 5px;
+            width:90px;
+            height:90px;
+            box-shadow: 1px 1px 5px -3px rgba(0, 0, 0, .2);
+            border-radius: 50%;
+            background-color: #f9f8f2;
+            transition: all 1s ease;
+        }
+
+        .tempSweetSmall{
+            margin-top: 5px;
+            margin-bottom: 5px;
+            margin-left: 5px;
+            margin-right: 5px;
+            width:90px;
+            height:90px;
+            box-shadow: 1px 1px 5px -3px rgba(0, 0, 0, .2);
+            border-radius: 5px;
+            background-color: #f9f8f2;
+            transition: all 1s ease;
+        }
+
+        #topping1,#topping2,#topping3,#topping1text,#topping2text,#topping3text, #tempSelected, #tempSelectedText, #sweetSelected, #sweetSelectedText{
+            display: none;
+        }
+
+        .temp_img, .sweet_img{
+            margin-top: 5px;
+            margin-bottom: 5px;
+            margin-left: 5px;
+            margin-right: 5px;
+            width:100px;
+            border-radius: 5px;
+            opacity: 0.2;
+        }
+
+        .tempText, .sweetText{
+            opacity: 0.2;
+        }
+
+        .tempSelected, .sweetSelected{
+            opacity: 1;
+            /* background-color:#fcf2d8;
+            box-shadow: 1px 1px 5px -1px rgba(0, 0, 0, 1); */
+            transition: all 0.5s ease;
+        }
+
+        .sweetWrapper{
+            background-color: #f9f8f2;
+            padding:10px;
+            max-width:815px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .tempWrapper{
+            background-color: #f9f8f2;
+            padding:10px;
+            max-width:590px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .temperature{
+            margin:10px;
+            width:100px;
+            box-shadow: 1px 1px 5px -3px rgba(0, 0, 0, .2);
+            border-radius: 80px;
+        }
+
+        .temperature2, .sweetness{
+            margin:10px;
+            width:400px;
+            height:140px;
+            box-shadow: 1px 1px 5px -3px rgba(0, 0, 0, .2);
+            border-radius: 5px;
+        }
+
+        .strawbag{
+            margin-left: 10px;
+            margin-right: 10px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            width:140px;
+            height:140px;
+            box-shadow: 1px 1px 5px -3px rgba(0, 0, 0, .2);
+            border-radius: 30px;
+            background-color:white;
+        }
+
+        .strawbag:hover{
+            cursor:pointer;
+            box-shadow: 1px 1px 5px -1px rgba(0, 0, 0, 0.4);
+            transition: all 0.5s ease;
+        }
+
+        .strawBagImgWrapper{
+            margin-top: 50px;
+        }
+
+        .strawBagText{
+            margin-top: 50px;
+            padding-right: 20px;
+            padding-left: 20px;
+            text-align: justify;
+        }
+
+        .iconSelectWrapper{
+            position: absolute;
+            left:110px;
+            top:20px;
+        }
+
+        .iconInfoWrapper{
+            position: absolute;
+            left:90px;
+            top:20px;
+        }
+
+        .iconSelect{
+            font-size: 20px;
+            display: inline-block;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            background-color: #68301b;
+            color:white;
+            margin-right: 10px;
+            transition: all 0.5s ease;
+            transform: rotate(90deg);
+        }
+
+        .iconInfo{
+            font-size: 20px;
+            display: inline-block;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            background-color: gray;
+            color:white;
+            margin-right: 10px;
+        }
+
+        .iconSelect:hover{
+            cursor: pointer;
+            background-color: darkgray;
+        }
+        .iconSelect.selected{
+            background-color:#8c6251;
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+        }
+
+        .iconSelect.selected:hover{
+            background-color:#ae9184;
+            transition: all 0.5s ease;
+        }
+
+        #language{
+            position: absolute;
+            top: 71px;
+            right:146px;
+            font-weight: 700;
+        }
+
+        #menu{
+            opacity: 0.85;
+            width:250px;
+            min-height: 50px;
+            position: fixed;
+            top: 100px;
+            right:10px;
+            background-color: white;
+            box-shadow: 1px 1px 5px -3px rgba(0, 0, 0, .5);
+            border-radius: 5px;
+            transition: all 1s ease;
+            background: linear-gradient(to bottom, rgba(83, 56, 55, 0.5), rgba(83, 56, 55, 0.25) 54px, rgba(255, 255, 255, 0.8) 54px, rgba(255, 255, 255, 0.8) 100%);
+            z-index: 1000;
+        }
+        #menuInner{
+            padding: 20px;
+            transition: 1s all ease;
+        }
+
+        .close{
+            display: none;
+            transition: 1s all ease;
+        }
+
+        #menuTitleWrapper{
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #menuTitle{
+            font-weight: 700;
+            text-align: center;
+            padding-top: 13px;
+            margin-left: 40px;
+        }
+
+        #menuCaret{
+            width:10px;
+            margin-left: 10px;
+        }
+
+        #menuCaret:hover{
+            opacity:0.7;
+            cursor: pointer;
+            transition: 1s all ease;
+        }
+
+        .flip {
+            -webkit-transform: scaleY(-1);
+            transform: scaleY(-1);
+        }
+
+        .menuTitleItem{
+            display: inline-block;
+            vertical-align: middle;
+            color:#68301b;
+        }
+
+        #sliderWrapper{
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 50px;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            height: 4px;
+            border-radius: 5px;
+            background: #d3d3d3;
+            outline: none;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #68301b;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #04AA6D;
+            cursor: pointer;
+        }
+
+        .sliderTemp{
+            width: 100%;
+            max-width:700px;
+        }
+
+        .sliderSweet{
+            width: 100%;
+            max-width:480px;
+        }
+
+        .section7show{
+            opacity: 0;
+        }
+
+        .footer{
+            /* height: 100%; */
+            background-image: url("./img/footer.png");
+            background-repeat: no-repeat;
+            background-position: center;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+            color:white;
+            text-align: justify;
+        }
+
+        .footer .row{
+            padding:50px;
+            padding-top:800px;
+        }
+
+        .footer .row h3, .footer .row p{
+            padding-left:10px;
+            padding-right:10px;
+        }
+
+        .footer .row h3{
+            margin-bottom: 20px;
+        }
+
+        .level7Text{
+            font-size: 11.5px;
+        }
+
+        #button{
+            margin-bottom: 10px;
+            margin-top: 10px;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+            font-weight: 700;
+            font-size: 16px;
+            line-height: 1.5;
+            /* text-transform: uppercase; */
+            background-color: none;
+            min-width: 200px;
+            text-align: center;
+            -webkit-transition: all .5s ease;
+            -moz-transition: all .5s ease;
+            -ms-transition: all .5s ease;
+            transition: all .5s ease;
+            padding: 15px;
+            background-color: #68301b;
+            color:white;
+            border:2px solid #68301b;
+            border-radius: 25px;
+        }
+
+        #button:hover{
+            cursor: pointer;
+            background-color: #fdfbf9;
+            color:#68301b;
+        }
+
+        #buttonText{
+            color: #68301b;
+            font-weight: 700;
+            margin-top: 20px;
+        }
+
+
+        #finalPrint{
+            padding-top: 50px;
+            padding-bottom: 50px;
+            background-color: #fdfbf9;
+            margin: 0px;
+        }
+
+        .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            margin-top: 120px;
+            margin-left: -205px;
+            background-color: rgba(255,255,255,0.8);
+            color: black;
+            text-align: center;
+            padding: 10px;
+            border-radius: 30px;
+            position: absolute;
+            font-size:12px;
+            z-index: 1;
+            box-shadow: 1px 1px 5px -1px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.3);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin-left: auto;
+            margin-right: auto;
+            top:50%;
+            transform:translate(0,-50%);
+            padding: 20px;
+            box-shadow: 1px 1px 5px -1px rgba(0, 0, 0, 0.5);
+            width: 500px;
+            border:none;
+            border-radius: 20px;
+        }
+
+        .modal-content p{
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* The Close Button */
+        #closeModal {
+            font-size: 20px;
+            display: inline-block;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            background-color: #8c6251;
+            color:white;
+            margin-right: 10px;
+            transition: all 0.5s ease;
+            transform: rotate(90deg);
+            position: absolute;
+            right:0px;
+            top:10px;
+        }
+
+        #closeModal:hover,
+        #closeModal:focus {
+            background-color:#ae9184;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.5s ease;
+        }
+
+        @media screen and (max-width: 810px) {
+            .sliderTemp, .sliderSweet{
+                width: 80%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .footer .row{
+                padding-top:600px;
+            }
+        }
+        @media screen and (max-width: 600px) {
+            section p, section h1{
+                padding-right:20px;
+                padding-left:20px;
+            }
+        }
+
+        @media screen and (max-width: 550px) {
+            #menu{
+                display: none;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div id="main">
+    <div class="topBar">
+        <p>Your tea-making adventure is best experienced on desktop</p><span id="topBarClose">x</span>
+    </div>
+    <div id="language">
+        <p>Sip in <a href="https://taiwandatastories.com/bubble-tea-guide/">EN</a> / <a href="https://taiwandatastories.com/zh/bubble-tea-guide">中文</a></p>
+    </div>
+    <section class='section' id='section1'>
+        <div class='row intro text-center'>
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <h1 id="title">All the Ways to Make Bubble Tea, Taiwan's Pearl-fect Drink</h1><br>
+                <h4>A look at over 12 million possible combos to sip on</h4><br>
+                <p id="byline">By <a target="_blank" rel="noopener noreferrer" href="http://juliahanjanicki.com/">Julia Janicki</a> and <a target="_blank" rel="noopener noreferrer" href="https://daisychung.com/">Daisy Chung</a></p>
+            </div>
+            <div class="col-md-2"></div>
+        </div>
+        <div class='row text-center'>
+            <div class="col-md-2"></div>
+            <div class="col-md-8 introContainer">
+                <p>As two Taiwanese people living abroad, bubble tea runs in our blood. For the uninitiated, bubble tea is a Taiwanese tea-based drink with tapioca balls also commonly known as “boba.” Although bubble tea can be made with other liquids and toppings, many people often order the standard: milk tea with boba. However, in Taiwan, the birthplace of boba (depending on <a href="https://www.taipeitimes.com/News/feat/archives/2018/11/13/2003704115">which origin story you believe</a>), locals often customize their drinks as if they own the shop! In fact, there are countless more flavors and toppings in Taiwan than we ever see abroad. </p>
+                <p>This made us curious: exactly how many unique boba drinks are there in Taiwan? And after living away from home for more than 10 years, are we missing out on any new developments in the boba scene? To answer these questions, we analyzed drink menus from the top 5 most popular stores as of Feb 2021 according to <a href="https://www.youtube.com/watch?v=TeOCwQorr0c&ab_channel=Data66">YouTuber Data66's Google Trends data</a>.</p>
+
+                <p>To make things simple, we broke down each drink to look at the types of base liquid, milk, flavor, and toppings used. </p>
+                <img class="img-fluid" src="img/intro.png" />
+                <p>The beauty of bubble tea is in its limitless possibility—you can completely customize your drink to your liking! Even in our study of just five stores, there are 157 unique drinks. Take a closer look by making your own drink below and find out why Taiwanese people are so proud of and crazy about this little cup of magic. </p>
+                <div class='scroll-arrow'>↓<br>
+                    <span class='arrow-text'>Begin your tea making adventure</span>
+                </div>
+            </div>
+            <div class="col-md-2"></div>
+        </div>
+    </section>
+
+    <div id="menu">
+        <div id="menuTitleWrapper">
+            <p id="menuTitle" class="menuTitleItem">Tea-making summary</p>
+            <img id="menuCaret" class="menuTitleItem" src="img/caret.png" />
+        </div>
+        <div id="menuInner">
+            <p><span class="numberSmall">1</span><b>Base drink:</b>  <span id="base"></span></p>
+            <hr>
+            <p><span class="numberSmall">2</span><b>Additional toppings:</b>  <span id="toppings"></span></p>
+            <hr>
+            <p><span class="numberSmall">3</span><b>Temperature:</b>  <span id="temperature"></span></p>
+            <hr>
+            <p><span class="numberSmall">4</span><b>Sweetness:</b>  <span id="sweetness"></span></p>
+            <hr>
+            <p><span class="numberSmall">5</span><b>Straw and Bag:</b>  <span id="straw"></span><span id="bag"></span></p>
+        </div>
+    </div>
+
+    <section class='section' id='section2'>
+        <div class='row text-center'>
+            <div class="col-md-12 instructionIntro">
+                <p class="instructions"><span class="number">1</span>Pick your base drink</p>
+                <p>First choose a base for your drink. You can think of this as the foundation of your bubble tea—even if it's not tea. </p>
+            </div>
+        </div>
+        <div class='row text-center'>
+            <div class="col-md-12">
+                <div class="imgContainer">
+                    <img class="base basehover" id="puretea" value="Pure teas" img src="./img/base/pure tea.png" />
+                    <div class="basetext">Pure teas </div>
+                </div>
+                <div class="imgContainer">
+                    <img class="base basehover" id="milktea" value="Milk teas" src="./img/base/milk tea.png"/>
+                    <div class="basetext">Milk teas</div>
+                </div>
+                <div class="imgContainer">
+                    <img class="base basehover" id="milkbased" value="Milk based drinks" src="./img/base/milk.png"/>
+                    <div class="basetext">Milk based drinks</div>
+                </div>
+                <div class="imgContainer">
+                    <img class="base basehover" id="fruitjuicetea" value="Fruit juice teas" src="img/base/fruit juice tea.png" />
+                    <div class="basetext">Fruit juice teas</div>
+                </div>
+                <div class="imgContainer">
+                    <img class="base basehover" id="seasonalfruit" value="Seasonal fruit drinks" src="./img/base/fresh juice.png"/>
+                    <div class="basetext">Fresh juice </div>
+                </div>
+                <div class="imgContainer">
+                    <img class="base basehover" id="probiotics" value="Probiotic drinks" src="./img/base/probiotics.png"/>
+                    <div class="basetext">Probiotics </div>
+                </div>
+            </div>
+        </div>
+        <div class='row text-center'>
+            <div class="col-md-12" id="clickInstructionWrapper">
+                <div id="chart">
+                </div>
+                <div id="clickInstruction">Tap to select your base drink</div>
+            </div>
+        </div>
+    </section>
+
+    <section class='section' id='section3'>
+        <div class='row text-center'>
+            <div class="col-md-12 instructionIntro">
+                <p class="instructions"><span class="number">2</span>Pick additional toppings</p>
+                <p>In Taiwan, people have a taste for soft and satisfyingly chewy textures—<a target="_blank" rel="noopener noreferrer" href="https://www.nytimes.com/2018/10/04/world/asia/taiwan-food-q-texture.html">something they describe as “Q”</a>. The classic example is boba pearls, which are made from tapioca starch. However, there are so many other toppings that fit the bill! Mostly using local ingredients, Taiwanese tea makers have explored and expanded topping options to provide an extra happy bounce to your drink. Hover your cursor over each topping to learn more!</p>
+            </div>
+        </div>
+        <div class='row text-center'>
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <div class="imgContainer">
+                    <img class="toppings" id="agarpearl" src="./img/toppings/Agar pearl.png" />
+                    <div class="toppingsText">Agar pearl</div>
+                    <span class="tooltiptext" id="agarpearl1">It is also called crystal boba or white pearl, and is usually set by boiling agar, a seaweed extract, then immersed in syrup with a subtle citrus flavor.  It is white, translucent and soft, chewy but not as gelatinous as boba.  </span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="aiyujelly" src="./img/toppings/Aiyu jelly.png">
+                    <div class="toppingsText">Aiyu jelly</div>
+                    <span class="tooltiptext" id="aiyujelly1">Aiyu is produced from the seeds of the awkeotsang creeping fig, a plant native to Taiwan that are found in mountains over 1500 m.  By massaging the seeds in water, pectin is released and interacts with the minerals in the water to gelatinize into a jelly.  Aiyu jelly shaved ice is a popular desert during the summer months in Taiwan.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="aloejelly" src="./img/toppings/Aloe jelly.png">
+                    <div class="toppingsText">Aloe jelly</div>
+                    <span class="tooltiptext" id="aloejelly1">Aloe vera jelly is made from the gel or pulp extracted from aloe vera plants, which is then soaked and boiled in water with sugar.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="boba" src="./img/toppings/Boba.png">
+                    <div class="toppingsText">Boba</div>
+                    <span class="tooltiptext" id="boba1">Also known as tapioca balls, boba are made from dried cassava root, which is a woody shrub that is native to South America.  The leaves are turned into tapioca, a starch, then soaked in sugar syrup to make them sweet.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="coconutjelly" src="./img/toppings/Coconut jelly.png">
+                    <div class="toppingsText">Coconut jelly</div>
+                    <span class="tooltiptext" id="coconutjelly1">Produced by the fermentation of coconut water that undergoes microbial cellulose production by a bacteria to form a gel. It is translucent, chewy, and has mild flavors.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="coffeejelly" src="./img/toppings/Coffee jelly.png">
+                    <div class="toppingsText">Coffee jelly</div>
+                    <span class="tooltiptext" id="coffeejelly1"> A jelly dessert produced by mixing coffee, sugar and agar or gelatin.  It can be made using instant mix or produced from scratch.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="driedlongan" src="./img/toppings/Dried longan.png">
+                    <div class="toppingsText">Dried longan</div>
+                    <span class="tooltiptext" id="driedlongan1">Dried longan [桂圓] is tranditionally made by sun-drying fresh longan, a fruit whose Chinese characters mean 'dragon eye' [龍眼].  The logan plant is found in tropical regions of Asia.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="grassjelly" src="./img/toppings/Grass jelly.png">
+                    <div class="toppingsText">Grass jelly</div>
+                    <span class="tooltiptext" id="grassjelly1">Grass jelly comes from the Chinese mesona plant native to Taiwan (in the mint family). It can be made by boiling the stems and leaves (at this stage it can be made into grass jelly tea), then set with starch and sweetener into a jelly. The name comes from its Chinese name, 'xian-cao' [仙草] which translates to “immortal grass” for its healing properties. It has a flavor between rooibus and mint with smoky undertone.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="icecream" src="./img/toppings/Ice cream.png">
+                    <div class="toppingsText">Ice cream</div>
+                    <span class="tooltiptext" id="icecream1">Self explanatory :)</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="mashedsweetpotato" src="./img/toppings/Mashed sweet potato.png">
+                    <div class="toppingsText">Mashed sweet potato</div>
+                    <span class="tooltiptext" id="mashedsweetpotato1">Taiwanese have been eating sweet potatoes since the 1600s and it became a key crop by 1700s, including for the aboriginese. At one point it was among the most important crops along with rice and sugar.  It is called [番薯] or [地瓜] (earth melon) in Chinese.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="milletmush" src="./img/toppings/Millet mush.png">
+                    <div class="toppingsText">Millet mush</div>
+                    <span class="tooltiptext" id="milletmush1">Called literally as "noodle tea"[麵茶] in Chinese (pronounced [米爹] in Taiwanese), it essentially is the mush made by mixing wheat flour, often along with peanut, sesame or almond poweder plus sugar, in boiling water.  It was originally a dish from northern China and is now a common dish sold by street vendors in Taiwan.  Recently it also became popular as a dessert and consumed with shaved ice as well as milk tea.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="mungbeanpuree" src="./img/toppings/Mung bean puree.png">
+                    <div class="toppingsText">Mung bean puree</div>
+                    <span class="tooltiptext" id="mungbeanpuree1">Mung beans come from a plant in the legume family found mainly in Asia.  The paste is made by cooking mung beans with sugar. On its own, it is a popular dessert in the summer season.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="frogeggs" src="./img/toppings/Frog eggs.png">
+                    <div class="toppingsText">Frog eggs</div>
+                    <span class="tooltiptext" id="frogeggs1"> Also known as mountain tapioca in Chinese [山粉圓], it is made from the seeds of the pignut plant. The seeds are flat and dark but after being soaked in water a translucent pectin layer would appear around the dark seed, making it look like frog eggs! Frog egg desserts are commonly found in Taiwanese night markets.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="osmanthusagarpearl" src="./img/toppings/Osmanthus agar pearl.png">
+                    <div class="toppingsText">Osmanthus agar pearl</div>
+                    <span class="tooltiptext" id="osmanthusagarpearl1">It is essentially agar pearl, which is formed from agar (a seaweed extract), immersed in syrup with Osmanthus flowers.  Osmanthus is a genus of plants that has been in Taiwan since the 1700s, their flowers are really popular in Taiwan and can be found in various products, including oolong teas and various desserts.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="passionfruitkonjacjelly" src="./img/toppings/Passion fruit konjac jelly.png">
+                    <div class="toppingsText">Passion fruit konjac jelly</div>
+                    <span class="tooltiptext" id="passionfruitkonjacjelly1">Konjac jelly is made from the root of the Konjac plant ([蒟蒻] in Chinese, and konnyaku in Japanases) native to E and SE Asia. It is a type of jelly similar to gelatin but firmer and basically tasteless on its own. Passionfruit, another plant found in Taiwan since the 1900s up until 2000 m elevation, can be added to it to add flavor to the texture.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="pearl" src="./img/toppings/Pearl.png">
+                    <div class="toppingsText">Pearl</div>
+                    <span class="tooltiptext" id="pearl1">Pears are essentially tapioca balls that are smaller than boba, and are sometimes called mini boba.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="pineappliechunk" src="./img/toppings/Pineapple chunk.png">
+                    <div class="toppingsText">Pineapple chunk</div>
+                    <span class="tooltiptext" id="pineappliechunk1">Pineapples have been cultivated in Taiwan since the 1600s and became a major crop under Japanese rule, and by 1972 Taiwan was the number two pineapple producer in the world, just after Hawaii. Nowadays the pineapples produced are mainly consumed locally with some exported to China before 2021 when China banned Taiwanese pineapples, but Taiwanese people bought up the excess stock. This response became knownn as "Freedom pineapples".</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="eggpudding" src="./img/toppings/Egg pudding.png">
+                    <div class="toppingsText">Egg pudding</div>
+                    <span class="tooltiptext" id="eggpudding1">Egg pudding is a sweet custard dessert with a smooth texture made from sugar, eggs, and milk. It is often consumed on its own but recently became a popular topping in boba drinks.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="redbeans" src="./img/toppings/Red beans.png">
+                    <div class="toppingsText">Red beans</div>
+                    <span class="tooltiptext" id="redbeans1">Red beans, [红豆] in Chinese, are used in many delicacies, such as the sweet red bean soup and the red bean wheel cakes. It is also a popular ingredient added to shaved ice, and more recently bubble tea drinks.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="ricegrain" src="./img/toppings/Rice grain.png">
+                    <div class="toppingsText">Rice grain</div>
+                    <span class="tooltiptext" id="ricegrain1">Also known as puffed rice [米香], it is a puffed grain made from rice.  It is formed by the reaction of both starch and moisture when heated within the shell of the grain. </span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="sago" src="./img/toppings/Sago.png">
+                    <div class="toppingsText">Sago</div>
+                    <span class="tooltiptext" id="sago1">Produced from sago palm starch. On its own sago does not have much flavor and is less chewy and smaller than tapioca pearls. They are easy to slurp and often paired well with creamy drinks.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="taroballs" src="./img/toppings/Taro balls.png">
+                    <div class="toppingsText">Taro balls</div>
+                    <span class="tooltiptext" id="taroballs1">Taro balls are a traditional Taiwanese dessert made from taro, a perennial herbaceous plant in the Araceae family, it is also known as ōo-á in Taiwanese.  Although taro was one of the staple foods of the Taiwanese aborigines in the past, now it is mostly consumed as a dessert.</span>
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="woodear" src="./img/toppings/Wood ear.png">
+                    <div class="toppingsText">Wood ear</div>
+                    <span class="tooltiptext" id="woodear1">Also known as tree ear, it is an edible fungus found on the bark of elder trees popular in Taiwanese savory dishes and desserts alike. </span>
+
+                </div>
+                <div class="imgContainer">
+                    <img class="toppings" id="ubeballs" src="./img/toppings/Ube balls.png">
+                    <div class="toppingsText">Ube balls</div>
+                    <span class="tooltiptext" id="ubeballs1">Ube is also known as purple yam or purple sweet potato, and it originated in the Philippines. Ube balls are fried purple yam mixed with condensed milk.</span>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class='section' id='section4'>
+        <div class='row text-center'>
+            <div class="col-md-12 instructionIntro">
+                <p class="instructions"><span class="number">3</span>Ice or hot?</p>
+                <p>Here's a secret: asking for no ice can get you a more concentrated tea flavor! You may even get extra points for ordering like a Taiwanese local. That’s because according to East Asian medicine, hot or room-temperature drinks are good for your health. Given this custom, some academics actually credit bubble tea for <a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=XA1jXEwt46o&ab_channel=SouthChinaMorningPost">introducing a preference for cold drinks</a> to Asia.</p>
+            </div>
+        </div>
+        <div class='row text-center'>
+            <div class="col-md-12">
+                <div class="sweetWrapper">
+                    <div class="imgContainer">
+                        <img class="temp_img" id="temp1img" src="./img/temp/Regular.png" />
+                        <div class="centered tempText" id="temp1text">Regular</div>
+                    </div>
+                    <div class="imgContainer">
+                        <img class="temp_img" id="temp2img" src="./img/temp/Less ice.png" />
+                        <div class="centered tempText" id="temp2text">Less ice</div>
+                    </div>
+                    <div class="imgContainer">
+                        <img class="temp_img" id="temp3img" src="./img/temp/Some ice.png" />
+                        <div class="centered tempText" id="temp3text">Some ice</div>
+                    </div>
+                    <div class="imgContainer">
+                        <img class="temp_img" id="temp4img" src="./img/temp/No ice.png" />
+                        <div class="centered tempText" id="temp4text">No ice</div>
+                    </div>
+                    <div class="imgContainer">
+                        <img class="temp_img" id="temp5img" src="./img/temp/Room temperature.png" />
+                        <div class="centered tempText" id="temp5text">Room temperature</div>
+                    </div>
+                    <div class="imgContainer">
+                        <img class="temp_img" id="temp6img" src="./img/temp/Warm.png" />
+                        <div class="centered tempText" id="temp6text">Warm</div>
+                    </div>
+                    <div class="imgContainer">
+                        <img class="temp_img" id="temp7img" src="./img/temp/Hot.png" />
+                        <div class="centered tempText" id="temp7text">Hot</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='row text-center'>
+            <div class="col-md-12">
+                <div id='sliderWrapper'></div>
+                    <input id='sliderIce' class="slider sliderTemp" type='range' min='1' max='7' step='1' value='1' />
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class='section' id='section5'>
+        <div class='row text-center'>
+            <div class="col-md-12 instructionIntro">
+                <p class="instructions"><span class="number">4</span>How sweet?</p>
+                <p>Although some base flavors are already sweet to begin with, sweeteners can also be added to your drink for extra oomph. These vary between tea shops—some use simple syrup, brown sugar syrup, golden cane syrup, fructose, or even honey. And like ice, you can also adjust the sweetness level of your drink.  When in doubt, go with 50% sweetness, the level many bubble tea aficionados swear by. </p>
+            </div>
+        </div>
+        <div class='row text-center'>
+            <div class="col-md-12 tempWrapper">
+                <div class="imgContainer">
+                    <img class="sweet_img" id="sweet1img" src="./img/sweet/Sugar-0.png" />
+                    <div class="centered sweetText" id="sweet1text">0%</div>
+                </div>
+                <div class="imgContainer">
+                    <img class="sweet_img" id="sweet2img" src="./img/sweet/Sugar-20.png" />
+                    <div class="centered sweetText" id="sweet2text">20%</div>
+                </div>
+                <div class="imgContainer">
+                    <img class="sweet_img" id="sweet3img" src="./img/sweet/Sugar-50.png" />
+                    <div class="centered sweetText" id="sweet3text">50%</div>
+                </div>
+                <div class="imgContainer">
+                    <img class="sweet_img" id="sweet4img" src="./img/sweet/Sugar-80.png" />
+                    <div class="centered sweetText" id="sweet4text">80%</div>
+                </div>
+                <div class="imgContainer">
+                    <img class="sweet_img" id="sweet5img" src="./img/sweet/Sugar-100.png" />
+                    <div class="centered sweetText" id="sweet5text">100%</div>
+                </div>
+            </div>
+        </div>
+        <div class='row text-center'>
+            <div class="col-md-12">
+                <div id='sliderWrapper'></div>
+                    <input id='sliderSweet' class="slider sliderSweet" type='range' min='1' max='5' step='1' value='1' />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class='section' id='section6'>
+        <div class='row text-center'>
+            <div class="col-md-12 instructionIntro">
+                <p class="instructions"><span class="number">5</span>Straw and bag</p>
+                <p>Many people in Taiwan drink their bubble tea on the go, so it's very common to see people walking, biking, or driving their motorbikes with a boba drink in a bag. Unfortunately, this can mean a lot of single-use plastic. However, in recent years, Taiwan has made great strides in reducing plastic waste. In fact, one new law that takes effect in July 2022 will give a $5 TWD discount to customers that bring their own reusable boba cups.</p>
+            </div>
+        </div>
+        <div class='row text-center'>
+            <div class="col-md-2"></div>
+            <div class="col-md-4" id="sectionStraw">
+                <h4>Straw</h4>
+                <div class="strawBagImgWrapper">
+                    <div class="imgContainer">
+                        <img class="strawbag" id="ownstraw" src="./img/strawbag/Straw-own.png" />
+                        <div class="strawText">I brought my own</div>
+                    </div>
+                    <div class="imgContainer">
+                        <img class="strawbag" id="fatstraw" src="./img/strawbag/Straw-fat.png" />
+                        <div class="strawText">Wide boba straw</div>
+                    </div>
+                    <div class="imgContainer">
+                        <img class="strawbag" id="regstraw" src="./img/strawbag/Straw-reg.png" />
+                        <div class="strawText">Regular straw</div>
+                    </div>
+                </div>
+                <p class="strawBagText">For larger toppings like boba, you’ll need a wider straw to enjoy your bubble tea. All tea shops provide these as well as regular straws, but a growing number of eco-conscious consumers are bringing their own reusable straws made of silicone, glass, or metal. Some tea shops also sell reusable straws.</p>
+
+            </div>
+            <div class="col-md-4" id="sectionBag">
+                <h4>Bag</h4>
+                <div class="strawBagImgWrapper">
+                    <div class="imgContainer">
+                        <img class="strawbag" id="ownbag" src="./img/strawbag/Bag-own.png" />
+                        <div class="bagText centered">I brought my own</div>
+                    </div>
+                    <div class="imgContainer">
+                        <img class="strawbag" id="nobag" src="./img/strawbag/Bag-none.png" />
+                        <div class="bagText centered">No bag</div>
+                    </div>
+                    <div class="imgContainer">
+                        <img class="strawbag" id="plasticbag" src="./img/strawbag/Bag-plastic.png" />
+                        <div class="bagText centered">Plastic baggy</div>
+                    </div>
+                </div>
+                <p class="strawBagText">Taiwanese tea shops sell small plastic bags (since 2018 stores are prohibited from issuing free plastic bags) so people can easily take their drink for the road. However, just like reusable straws are becoming popular, so are reusable bubble tea holders made of stylish fabric. Some designs even include a convenient pocket for carrying your straw. </p>
+            </div>
+            <div class="col-md-2"></div>
+        </div>
+    </section>
+
+    <section class='section' id='section7'>
+        <div class='row text-center'>
+            <div class="col-md-12 instructionIntro">
+                <p class="instructions"><span class="number">6</span>Enjoy your very own drink</p>
+                <p class="section7show">Congrats! Out of 12,775,875 possible combinations, you've created a one-of-a-kind bubble tea drink, along with the following customisations:</p>
+            </div>
+        </div>
+        <div class='row section7show' id="finalPrint">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-2 text-left">
+                <p class="finalSelection">The Base</p>
+                <hr>
+                <p id="finalBase"></p>
+                <p class="finalSelection">The Flavor</p>
+                <hr>
+                <p id="finalFlavor"></p>
+                <p class="finalSelection">The Texture</p>
+                <hr>
+                <p id="finalTexture"></p>
+                <div id="finalToppingWrapper">
+                    <div class="imgContainer">
+                        <img class="toppingsSmall" id="topping1" src="./img/toppings/Aiyu jelly.png">
+                        <div class="toppingsTextSmall centered" id="topping1text">Aiyu jelly</div>
+                    </div>
+                    <div class="imgContainer">
+                        <img class="toppingsSmall" id="topping2" src="./img/toppings/Aiyu jelly.png">
+                        <div class="toppingsTextSmall centered" id="topping2text">Aiyu jelly</div>
+                    </div>
+                    <div class="imgContainer">
+                        <img class="toppingsSmall" id="topping3" src="./img/toppings/Aiyu jelly.png">
+                        <div class="toppingsTextSmall centered" id="topping3text">Aiyu jelly</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-center" id="finalDrinkContainer">
+                <img id='finalDrink'>
+            </div>
+            <div class="col-md-2 text-left">
+                <p class="finalSelection">The Milk</p>
+                <hr>
+                <p id="finalMilk"></p>
+                <p class="finalSelection">Temperature & Sweetness</p>
+                <hr>
+                <div id="finalTempSweetWrapper">
+                    <div class="imgContainer">
+                        <img class="tempSweetSmall" id="tempSelected" src="./img/temp/Regular.png">
+                        <div class="tempSweetTextSmall centered" id="tempSelectedText">Hot</div>
+                    </div>
+                    <div class="imgContainer">
+                        <img class="tempSweetSmall" id="sweetSelected" src="./img/sweet/Sugar-0.png">
+                        <div class="tempSweetTextSmall centered" id="sweetSelectedText">0%</div>
+                    </div>
+                </div>
+                <p class="finalSelection">The Straw</p>
+                <hr>
+                <p id="finalStraw"></p>
+                <p class="finalSelection">The Bag</p>
+                <hr>
+                <p id="finalBag"></p>
+            </div>
+            <div class="col-md-2">
+            </div>
+        </div>
+        <div class='row text-center'>
+            <div class="col-md-12">
+                <div id="chart2">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="section8">
+        <div class='row text-center'>
+            <div class="col-md-12">
+                <button id="button">Download your virtual drink!</button>
+                <p id="buttonText">And share it with the world with #MyBobaDrink</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section footer" id="section9">
+        <div class='row'>
+            <!-- <div class="col-lg-2 col-md-1">
+            </div> -->
+            <div class="col-lg-4 col-md-5 col-sm-12 offset-lg-2 offset-md-1">
+                <h3>Special thanks </h3>
+                <p>We're so grateful for the support we received in putting this bubble tea explainer together! Thank you to <a target="_blank" rel="noopener noreferrer" href="https://www.joyce-chou.com/">Joyce Chou</a> for editing our content, Gina Wang, Anny Chung, and Vincent Wang for editing and writing the Mandarin translation, and our lovely family and friends who listened to us talk about boba for 4 months and tested our site as on-the-ground bubble tea experts!</p>
+                <p>We'd also like to acknowledge the creative works that inspired us along the way: Juju Sprinkles' <a target="_blank" rel="noopener noreferrer" href="http://jujusprinkles.com/2017-03-27-how-to-order-your-boba-tea-drink-like-a-taiwanese/">The Little Book of Boba Tea</a>, and Hesham Eissa and Lindsey Poulter's DataViz story <a target="_blank" rel="noopener noreferrer" href="https://benjerry.heshlindsdataviz.com/">“The Inside Scoop of Ben & Jerry's”</a>.</p>
+            </div>
+            <div class="col-lg-4 col-md-5 col-sm-12">
+                <h3>Data and methods</h3>
+                <p>We looked at the drink menus of the five most popular bubble tea shops in Taiwan using data from the <a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=TeOCwQorr0c&ab_channel=Data66">YouTuber Data66 and Google Trends</a>. These shops include Kebuke, 50 arashi, Ching-Shin Fu-Chuan, Milk Shop, and Ching Yuan.</p>
+                <p>Using this dataset, we narrowed down the unique drink options to 157 across all of the shops and categorized them according to their base liquid: pure teas, milk teas, milk-based drinks, fruit juice teas, fresh juice, and probiotics. Then we further classified them based on their ingredients. We searched for ingredient lists and images for each drink, and also used our best judgment when necessary. For example, we defined “tea lattes” as drinks that use fresh milk and “milk teas” as drinks that use milk powder. </p>
+                <p>Finally, Thomas Nieddu helped us calculate all of the possible drink combinations that can be created with 157 unique drinks, 3 additional toppings, 7 temperature levels, and 5 sweetness levels. <a href="./img/calculation.jpg">Check out</a> his math here—we welcome feedback from anyone who'd like to contest the final figure of 12,775,875.  </p>
+            </div>
+            <!-- <div class="col-lg-2 col-md-1">
+            </div> -->
+        </div>
+    </section>
+</div>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+    <div class="modal-content">
+      <span id="closeModal">&times;</span>
+      <p id="modalText"></p>
+    </div>
+</div>
+
+<!-- <div id="loading">
+    <img id="loading-image" src="./img/shaker.gif" alt="Loading..." />
+ </div> -->
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="dom-to-img.js"></script>
+<script src="tooltip.js"></script>
+<script src="data/fruitjuicetea.js"></script>
+<script src="data/milkbased.js"></script>
+<script src="data/milktea.js"></script>
+<script src="data/probiotics.js"></script>
+<script src="data/puretea.js"></script>
+<script src="data/seasonalfruit.js"></script>
+<script src="imgArray.js"></script>
+<script>
+
+
+
+window.onload = function() {
+
+
+    // preload(imgArray);
+
+
+    // function preload(imgArray) {
+    //     var loadedCount = 0
+    //     $(imgArray).each(function(){
+    //     var img = new Image();
+    //     img.src = this;
+    //     img.onload = function() {
+    //         loadedCount++;
+    //         if (loadedCount==imgArray.length) {
+    //         loadComplete();
+    //         }
+    //     }
+    //     });
+    // }
+
+    // function loadComplete() {
+    //     $('#loading').hide();
+    //     $('main').css('opacity', 1);
+    // }
+
+
+    $("#topBarClose").on("click",function(event){
+        $(".topBar").css("display","none");
+        $(".topBar").css("opacity", 0);
+    })
+
+    const windowWidth = $(window).width();
+    const windowHeight = $(window).height();
+
+    $(window).resize(function() {
+        if (windowWidth != $(window).width() || windowHeight != $(window).height()) {
+            location.reload();
+            return;
+        }
+    });
+
+
+    const node = document.getElementById('finalPrint');
+
+    $("#button").on('click',function(event){
+
+        domtoimage.toJpeg(document.getElementById('finalPrint'), { quality: 0.95 })
+        .then(function (dataUrl) {
+        var link = document.createElement('a');
+        link.download = 'my-drink.jpeg';
+        link.href = dataUrl;
+        link.click();
+    });
+
+    })
+
+    const tooltip = floatingTooltip('tooltip', 200);
+
+
+
+    let menuSelected = {
+        "base":"",
+        "drink":"",
+        "base1":"",
+        "base2":"",
+        "milk":"",
+        "flavor":"",
+        "texture":"",
+        "toppings":[],
+        "ice":"",
+        "sweetness":"",
+        "straw":"",
+        "bag":""
+    }
+
+    const toppings = ["Agar pearl","Aloe jelly","Boba","Coconut jelly","Coffee jelly","Dried longan","Grass jelly","Ice cream","Mashed sweet potato","Millet mush","Mung bean puree","OREO","Osmanthus agar pearl","Passion fruit konje jelly","Passionfruit puree","Pearl","Pineapple chunk","Pudding","Red beans","Sago","Small taro balls","Taro ball","Taro puree","Ube ball","Wood ear"];
+    const delay = 400;
+    let clickDisabled = false; // to keep track of function end to disable clicking of main bases during animation
+
+    const figure = $("#chart").parent();
+    const width = figure.width(); //figure.node().getBoundingClientRect().width;
+    const height = 1050; //figure.node().getBoundingClientRect().height;
+
+
+    const translateY = 110;
+
+    // Prepare our physical space for SVG 1 (tree)
+    const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+    const g = svg.append('g')
+        .attr('transform', `translate(20,${translateY})`)
+        .attr("class","mainG");
+
+    const introTextG = svg.append('g')
+        .attr('transform', `translate(${width/2},${height/2})`)
+        .attr("class","introTextG");
+
+    const textG = svg.append('g')
+    .attr('transform', `translate(20,${translateY})`)
+    .attr("class","textG");
+
+    const imgG = svg.append('g')
+    .attr('transform', `translate(20,${translateY})`)
+    .attr("class","imgG");
+
+    const textRectG = svg.append('g');
+
+    //drink variables
+
+    const categories = ["Base 1", "Base 2", "Milk", "Flavor", "Texture", ""];
+    const levels = ["2", "3", "4", "5", "6", "7"];
+    const wrapArray = [45,50,35,50,37,50];
+    const wrapArrayDrinks = ["fruitjuicetea","milkbased","milktea","probiotics","puretea","seasonalfruit"];
+
+    // all the scales
+    const colorScale = d3.scaleOrdinal()
+        .domain(["level1", "level2", "level3", "level4", "level5", "level6"])
+        .range(["#68301b", "#8c6251", "#ae9184", "#c4aea5", "#d0beb6", "#e1d5cf"]);
+
+    const imgNameScale = d3.scaleOrdinal()
+        .domain(["level2Img", "level3Img", "level4Img", "level5Img", "level6Img", "level7Img"])
+        .range(["b1", "b2", "m", "f", "t", "1"]);
+
+    const strokeScale = d3.scaleOrdinal()
+        .domain(["level", "level2", "level3", "level4", "level5", "level6"])
+        .range([5, 4, 3.5, 3, 2.5, 2]);
+
+    const fontScale = d3.scaleOrdinal()
+        .domain(["1", "2", "3", "4", "5", "6","7"])
+        .range([12, 12, 11.5, 11.5, 11, 11,11]);
+
+    const imgYTranslateScale = d3.scaleOrdinal()
+        .domain(["1", "2", "3", "4", "5", "6","7"])
+        .range([0, 50, 18, 2, 12, 12,0]);
+
+    const textBgYTranslateScale = d3.scaleOrdinal()
+        .domain(["1", "2", "3", "4", "5", "6","7"])
+        .range([10, 12, 18, 20, 25, 25,60]);
+
+    const imgWidthScale = d3.scaleOrdinal()
+        .domain(["2", "3", "4", "5", "6","7"])
+        .range([75, 70, 50, 60, 60, 80]);
+
+    const textBgXTranslateScale = d3.scaleLinear().domain([30, 50]).range([5,-5]);
+
+    const textScale = d3.scaleOrdinal().domain([0, 1, 2, 3, 4]).range(categories);
+
+    const wrapScale = d3.scaleOrdinal().domain(wrapArrayDrinks).range(wrapArray);
+    const temperatureScale = d3.scaleOrdinal().domain([1,2,3,4,5,6,7]).range(["Regular","Less ice","Some ice","No ice","Room temperature","Warm","Hot"]);
+    const sweetnessScale = d3.scaleOrdinal().domain([1,2,3,4,5]).range([0,20,50,80,100]);
+
+
+    // Declare d3 layout
+    const vLayout = d3.tree().size([width * 0.98, height * 0.75]);
+    let imgWidth = 60;
+
+    const texture = textures
+        .circles()
+        .fill('#fee0d2')
+        .thicker();
+
+    svg.call(texture);
+
+    introTextG.append("text")
+        .attr("id","introText")
+        .attr("x", 0)
+        .attr("y", 0)
+        .style("font-size", 20)
+        .style("font-family", 'Libre Franklin')
+        .attr("text-anchor", "middle")
+        .attr("fill","black")
+        .text("Click on a base to start");
+
+
+    //prepare data
+
+    const arrangeData = data =>{
+
+        const reduceFn = data => d3.sum(data, d => d.count);
+        const groupingFns = [d => d.Base, d => d.Base2, d => d.Milk, d => d.Flavor, d => d.Texture, d => d.drinkEN]
+        const rollupData = d3.rollup(data, reduceFn, ...groupingFns);
+        const childrenAccessorFn = ([key, value]) => value.size && Array.from(value)
+
+        const hierarchyData = d3.hierarchy([null, rollupData], childrenAccessorFn)
+            .sum(([key, value]) => value)
+            .sort(function(a,b){
+                if(a.data[0]=="No") return -1;
+                return b.value - a.value;
+            })
+
+        return hierarchyData;
+
+    }
+
+    //wrap text
+    const wrap = (text, width) => {
+        text.each(function () {
+            var text = d3.select(this),
+                words = text.text().split(/\s+/).reverse(),
+                word,
+                line = [],
+                lineNumber = 1, //<-- 0!
+                lineHeight = 1.1, // ems
+                x = text.attr("x"), //<-- include the x!
+                y = text.attr("y"),
+                dy = text.attr("dy") ? text.attr("dy") : 0; //<-- null check
+            tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
+            while (word = words.pop()) {
+                line.push(word);
+                tspan.text(line.join(" "));
+                if (tspan.node().getComputedTextLength() > width) {
+                    line.pop();
+                    tspan.text(line.join(" "));
+                    line = [word];
+                    tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                }
+            }
+        });
+    }
+
+
+    //draw shelves
+    const drawBG = () => {
+
+        g.selectAll(`image.shelf`).data(bgData).join('svg:image')
+            .attr("class", "shelf")
+            .attr('x', 0)
+            .attr('y', (d,i) => i==0?d.y0-40:d.y0-10)
+            .attr('width', width * 0.98)
+            .attr('height', d => (d.y1 - d.y0))
+            .attr("xlink:href", d=> `./img/shelf.png`)
+
+
+        g.selectAll("text.fork").data(bgData).join("text")
+            .attr("class", "fork")
+            .attr('x', 0)
+            .attr('y', (d,i) => i==0?(d.y1 - (d.y1 - d.y0) / 2 -55):(d.y1 - (d.y1 - d.y0) / 2 -25)) //+5
+            .style("font-family", 'Open Sans Condensed')
+            .style("font-size", 18)
+            .style("font-weight", 300)
+            .attr("text-anchor", "start")
+            .text((d, i) => textScale(i))
+    }
+
+    // draw tree
+    const drawViz = (className, data) => {
+
+        g.selectAll(`path.${className}.path`).data(data).join('path')
+            .attr("class", `${className} path`)
+            .attr('d', d3.linkVertical()
+                .x(d=>d.x)
+                .y(d=>className=="level1"?d.y-50:d.y))
+
+            .attr("stroke-dasharray", function () {
+                const totalLength = this.getTotalLength();
+                return totalLength + " " + totalLength;
+            })
+            .attr("stroke-dashoffset", function () {
+                const totalLength = this.getTotalLength();
+                return totalLength;
+            })
+            .transition()
+            .duration(500)
+            .attr("stroke-dashoffset", 0)
+            .attr("opacity", 0.7)
+            .attr("stroke-width", 3)
+            //.attr("stroke-width",strokeScale(className))
+            .attr("fill", "none")
+            .attr("stroke", colorScale(className))
+
+    }
+
+
+    const drawText = (className, data) => {
+
+        if(className =="level7Text"){
+            const text =  textG.selectAll(`text.${className}`).data(data).join('text')
+            .attr("class", className)
+            .attr("id", d => `text${d.target.data[0].replace(/ /g, "_") + className.charAt(5)}`)
+            .attr("x", d => d.target.x)
+            .attr("y", d => className=="level7Text"&&menuSelected.base =="Milk teas"?d.target.y+60:d.target.y+80)
+            .attr("dy", 1)
+            .style("font-weight",400)
+            .style("font-size", 11.5)
+            .style("font-family", 'Open Sans Condensed')
+            .attr("text-anchor", "middle")
+            .text(d => d.target.data[0])
+            .call(wrap, wrapScale(selectedString) || 50);
+
+            //then make the current selected drink font weight 700
+            d3.select(`#text${menuSelected.drink.replaceAll(" ","_")}7`).style("font-weight",700);
+
+        }
+    }
+
+
+    const drawImage = (className, data) => {
+
+        const level = className.charAt(5)
+
+        const img =  imgG.selectAll(`image.${className}`).data(data).join('svg:image')
+            .attr("class", className)
+            .attr("id", d => `text${d.target.data[0].replace(/ /g, "_") + className.charAt(5)}`)
+            .attr("width", className=="level7Img"&&menuSelected.base =="Milk teas"?imgWidthScale(level)-20:imgWidthScale(level))
+            .attr("height", className=="level7Img"&&menuSelected.base =="Milk teas"?imgWidthScale(level)-20:imgWidthScale(level))
+
+            img.transition().duration(500)
+            .attr("x", d=> className=="level7Img"&&menuSelected.base =="Milk teas"?d.target.x-imgWidthScale(level)/2+10:d.target.x-imgWidthScale(level)/2)
+            .attr("y", d => d.target.y - imgYTranslateScale(className.charAt(5)))
+
+            img.attr("xlink:href", function(d){
+                let imgName = d.target.data[0].replaceAll(",","");
+
+                if(d.target.data[0] == "No"){
+                    if(className=="level2Img"){
+                        return './img/categories/Faucet.png';
+                    }else{
+                        return ""
+                    }
+                }else{
+                    return className=="level7Img"?`./img/drinks/${imgName} ${imgNameScale(className)}.png`:`./img/categories/${imgName} ${imgNameScale(className)}.png`
+                }
+            })
+
+        if(className=="level7Img"){
+            img.on("mouseover", function (e,data) {
+                var id = d3.select(this).attr("id").substring(6)
+                var textClass = className + "Text";
+                d3.select(this).style("cursor", 'pointer');
+                d3.select(`image${id}`).attr("opacity", 1);
+                var select = data.target.data[0]
+                var find = flatten(vRoot).find(function (d) {
+                    if (d.data[0] == select)
+                        return true;
+                });
+                doReset()
+                while (find.parent) {
+                    find.stroke = "5";
+                    find = find.parent;
+                }
+                update(find);
+                const content = `<span class="drinkNameBig">${select}</span>`;
+                tooltip.showTooltip(content, e);
+
+            })
+            .on("mouseout", function (e) {
+                var id = d3.select(this).attr("id").substring(6)
+                d3.select(`image${id}`).style("font-size", 11.5);
+                d3.selectAll("image").attr("opacity", 1);
+                d3.selectAll("path").style("stroke-width",3);
+                tooltip.hideTooltip();
+            })
+            .on("click", function (e, data) {
+                menuSelected.drink=data.target.data[0];
+                menuSelected.texture=data.source.data[0];
+                menuSelected.flavor=data.source.parent.data[0];
+                menuSelected.milk=data.source.parent.parent.data[0];
+                menuSelected.base2=data.source.parent.parent.parent.data[0];
+                menuSelected.base1=data.source.parent.parent.parent.parent.data[0];
+                $("#menu").css("opacity",0.85);
+                $("#base").html(data.target.data[0]);
+                drawFinalDrink();
+                d3.selectAll(".level7Text").style("font-weight",400);
+                d3.select(`#text${data.target.data[0].replaceAll(" ","_")}7`).style("font-weight",700);
+                $("#clickInstruction").css("opacity", 0);
+                $("#clickInstruction").css("display","none");
+            })
+        }
+
+        svg.selectAll("image.shelf").lower();
+    }
+
+    const drawFinalDrink = () => {
+        $(".section7show").css("opacity",1)
+        const drinkname = `${menuSelected.drink} 1`;
+        const windowHeight = $(window).height();
+        const drinkImgHeight = windowHeight-100;
+        const drinkImgWidth = drinkImgHeight * 0.62;
+        $("#finalDrink").attr("src", `./img/drinks/${drinkname}.png`);
+        $("#finalDrink").css({"width":drinkImgWidth, "height":drinkImgHeight})
+        // $("#finalDrinkSelected").html(menuSelected.drink.toLowerCase());
+
+        if(menuSelected.flavor=="No"){
+            $("#finalFlavor").html(`There is no extra flavor added to this drink`);
+        }else{
+            $("#finalFlavor").html(`The drink has <b>${menuSelected.flavor.toLowerCase()}</b> for an extra tint of complexity.`);
+        }
+        if(menuSelected.texture=="No"){
+            $("#finalTexture").html(`The drink doesn't have any default textures. But toppings include:`);
+        }else{
+            $("#finalTexture").html(`The drink comes with <b>${menuSelected.texture.toLowerCase()}</b> plus the following toppings: <span id="additionalToppings"></span>`);
+        }
+        if(menuSelected.milk=="No"){
+            $("#finalMilk").html(`There is no milk in this drink`);
+        }else{
+            $("#finalMilk").html(`The drink has <b>${menuSelected.milk.toLowerCase()}</b>.`);
+        }
+
+        if(menuSelected.base1=="No" || menuSelected.base2=="No"){
+            if(menuSelected.base1=="No"){
+                if(menuSelected.base =="Milk based drinks"){
+                    $("#finalBase").html(`The drink collection is <b>${menuSelected.base.toLowerCase()}</b>, the drink base is <b>${menuSelected.drink.toLowerCase()}</b>, with the main base being <b>milk</b>.`);
+                }
+
+            }else{
+                if(menuSelected.base =="Milk based drinks"){
+                    $("#finalBase").html(`The drink collection is <b>${menuSelected.base.toLowerCase()}</b>, the drink base is <b>${menuSelected.drink.toLowerCase()}</b>, with the main bases being <b>milk</b> and <b>${menuSelected.base1.toLowerCase()}</b>`);
+                }else{
+                    $("#finalBase").html(`The drink collection is <b>${menuSelected.base.toLowerCase()}</b>, the drink base is <b>${menuSelected.drink.toLowerCase()}</b>, with the main base being <b>${menuSelected.base1.toLowerCase()}</b>`);
+                }
+            }
+
+        }else{
+            if(menuSelected.base =="Milk based drinks"){
+                $("#finalBase").html(`The drink collection is <b>${menuSelected.base.toLowerCase()}</b>, the drink base is <b>${menuSelected.drink.toLowerCase()}</b>, with the main bases being milk, <b>${menuSelected.base1.toLowerCase()}</b>, and <b>${menuSelected.base2.toLowerCase()}</b>`);
+            }else{
+                $("#finalBase").html(`The drink collection is <b>${menuSelected.base.toLowerCase()}</b>, the drink base is <b>${menuSelected.drink.toLowerCase()}</b>, with the main base being <b>${menuSelected.base1.toLowerCase()}</b> and <b>${menuSelected.base2.toLowerCase()}</b>`);
+            }
+        }
+        $("#finalMlik").html(menuSelected.milk.toLowerCase());
+    }
+
+
+    const drawDelay = (className, data, dataText, time, viz) => {
+
+        const classNameImg =  className+"Img";
+        const classNameText = className+"Text";
+
+
+        if(classNameImg=="level7Img"){
+            setTimeout(
+            function () {
+                drawImage(classNameImg, dataText)
+            }, 500+delay*7); //500 instead of 750 so the last images draw about the same time as the tree finishes
+
+        }else{
+            drawImage(classNameImg, dataText)
+        }
+
+
+        setTimeout(
+            function () {
+                if (viz) { drawViz(className, data); }
+                drawText(classNameText, dataText)
+            }, time);
+
+    }
+
+    const createTree = selected =>{
+
+        d3.select("#introText").remove();
+
+        vRoot = arrangeData(selected);
+        const vNodes = vRoot.descendants();
+        const vLinks = vLayout(vRoot).links();
+
+        const filterData = (targetHeight) => (vLinks.filter(d => d.target.height == targetHeight))
+        const filterDataNodes = (targetHeight) => (vNodes.filter(d => d.height == targetHeight))
+
+        const level1Data = filterData(5);
+        const level2Data = filterData(4);
+        const level3Data = filterData(3);
+        const level4Data = filterData(2);
+        const level5Data = filterData(1);
+        const level6Data = filterData(0); //the actual drinks
+
+
+        bgData = [
+        { "y0": level2Data[0].source.y, "y1": level2Data[0].target.y },
+        { "y0": level3Data[0].source.y, "y1": level3Data[0].target.y },
+        { "y0": level4Data[0].source.y, "y1": level4Data[0].target.y },
+        { "y0": level5Data[0].source.y, "y1": level5Data[0].target.y },
+        { "y0": level6Data[0].source.y, "y1": level6Data[0].target.y }];
+
+
+        drawBG();
+        d3.selectAll("path").remove();// so that the old trees don't stay there when a new base is selected
+
+        setTimeout(
+            function () {
+                drawViz("level1", level1Data);
+                g.selectAll("image.topImg").raise(); // so the shaker is on top of the first tree level
+            }, 750+delay); //750 so the shaker animation finishes before the tree draws
+
+
+        drawDelay("level2", level2Data, level1Data, 750+delay*2, true);
+        drawDelay("level3", level3Data, level2Data, 750+delay*3, true);
+        drawDelay("level4", level4Data, level3Data, 750+delay*4, true);
+        drawDelay("level5", level5Data, level4Data, 750+delay*5, true);
+        drawDelay("level6", level6Data, level5Data, 750+delay*6, true);
+        drawDelay("level7", level6Data, level6Data, 750+delay*7, false);
+
+        //add top shaker image
+        g.selectAll("image.topImg").remove();
+        g.append("image").datum(vRoot).attr("class","topImg")
+        .transition().duration(500)
+        //only after I add the transition that the shaker animation draws everytime instead of just the first time, why?
+        .attr("x",d=>d.x-imgWidth/2)
+        .attr("y",d=>d.y-100)
+        .attr("width",imgWidth+20)
+        .attr("height",imgWidth+20)
+        .attr("xlink:href", d=> `./img/shaker.gif`);
+    }
+
+
+    //selected
+
+    let clicked = false;
+    let selected;
+    let selectedString;
+    let bgData;
+    let vRoot;
+    let temperature;
+    let ice;
+    // Get the modal
+    let modal = $("#myModal");
+    // Get the <span> element that closes the modal
+    let closeModal = $("#closeModal");
+
+    $("#menuCaret").on("click",function(event){
+        $("#menuInner").toggleClass("close");
+        $("#menuCaret").toggleClass("flip");
+    });
+
+    $("#section2 .base").on("click",function(event){
+        event.preventDefault();
+        $("#section2 .base").css("background-color","#f9f8f2");
+        $(this).css("background-color","#fcf2d8");
+        // $(`.level7Text:not(#text${menuSelected.drink.replaceAll(" ","_")}7)`).css("font-weight",400);
+        d3.selectAll(".level7Text").style("font-weight",400);
+        //d3.select(`#text${menuSelected.drink.replaceAll(" ","_")}7`).style("font-weight",700);
+        $("#clickInstruction").css("display","inherit");
+        $("#clickInstruction").css("opacity", 0.7);
+
+        if(!clickDisabled){
+            clickDisabled = true;
+            $("#section2 .base").css("opacity",0.5)
+            $("#section2 .basetext").css("opacity",0.5)
+            $("#section2 .base").removeClass("basehover");
+
+            selectedString = $(this).attr("id");
+            selected = window[selectedString];
+            createTree(selected);
+
+            //if selected base is different
+            d3.selectAll("circle.circles").attr("stroke","none").attr("stroke-width",0);
+
+            menuSelected.base = $("#"+selectedString).attr("value");
+            clicked = true;
+        }
+
+
+        setTimeout(
+            function () {
+                clickDisabled = false;
+                $("#section2 .base").css("opacity",1)
+                $("#section2 .basetext").css("opacity",1)
+                $("#section2 .base").addClass("basehover");
+        }, 750+delay*7);
+
+    });
+
+
+    closeModal.on("click",function(){
+            modal.css("display","none");
+    });
+
+
+    //toppings on click
+    $("#section3 img").on("click",function(event){
+        event.preventDefault();
+        if(menuSelected.drink==""){
+            modal.css("display","block");
+            $("#modalText").html("Select base first");
+            return
+        }
+        $(this).css("background-color","#fcf2d8");
+
+        let selectedTopping = $(this).attr("id");
+        let selectedToppingClean = $(this).parent().find(".toppingsText").text();
+        if(menuSelected.toppings.length<3){
+            if(menuSelected.toppings.indexOf(selectedToppingClean) === -1){
+                menuSelected.toppings.push(selectedToppingClean);
+                if(typeof menuSelected.toppings[0] === 'undefined') {
+                    $("#topping1").css("display","none");
+                }
+                else {
+                    $("#topping1").css("display","inline");
+                    $("#topping1").attr("src",`./img/toppings/${menuSelected.toppings[0]}.png`);
+                    $("#topping1text").css("display","inline");
+                    $("#topping1text").html(`${menuSelected.toppings[0]}`);
+                }
+                if(typeof menuSelected.toppings[1] === 'undefined') {
+                    $("#topping2").css("display","none");
+                }
+                else {
+                    $("#topping2").css("display","inline");
+                    $("#topping2").attr("src",`./img/toppings/${menuSelected.toppings[1]}.png`);
+                    $("#topping2text").css("display","inline");
+                    $("#topping2text").html(`${menuSelected.toppings[1]}`);
+                }
+                if(typeof menuSelected.toppings[2] === 'undefined') {
+                    $("#topping3").css("display","none");
+                }
+                else {
+                    $("#topping3").css("display","inline");
+                    $("#topping3").attr("src",`./img/toppings/${menuSelected.toppings[2]}.png`);
+                    $("#topping3text").css("display","inline");
+                    $("#topping3text").html(`${menuSelected.toppings[2]}`);
+                }
+
+                $("#toppings").html(menuSelected.toppings.join(", "));
+                $("#"+selectedTopping).parent().append(`<div class='iconSelectWrapper' id='${selectedTopping}Select'><div class='iconSelect selected'>+</div></div></div>`)
+            }
+        }else{
+            modal.css("display","block");
+            $("#modalText").html("Please select up to <b>three ingredients</b> only for a more balanced tasting experience.");
+            $(`#${selectedTopping}.toppings`).css("background-color","#f9f8f2");
+        }
+
+
+        $(".iconSelect").on("click",function(event){
+            event.preventDefault();
+            let removedTopping = $(this).parent().parent().find(".toppingsText").text();
+            let removedToppingId = removedTopping.replace(/\s/g, '').toLowerCase();
+            $(`#${removedToppingId}.toppings`).css("background-color","#f9f8f2");
+            const index = menuSelected.toppings.indexOf(removedTopping);
+            if (index > -1) {
+                menuSelected.toppings.splice(index, 1);
+            }
+            $("#toppings").html(menuSelected.toppings.join(", "));
+            $("#additionalToppings").html(menuSelected.toppings.join(", "));
+            $(this).remove();
+
+            if(typeof menuSelected.toppings[0] === 'undefined') {
+                    $("#topping1").css("display","none");
+                    $("#topping1text").css("display","none");
+                    $("#topping2").css("display","none");
+                    $("#topping2text").css("display","none");
+                    $("#topping3").css("display","none");
+                    $("#topping3text").css("display","none");
+                }
+
+            if(typeof menuSelected.toppings[1] === 'undefined') {
+                $("#topping2").css("display","none");
+                $("#topping3").css("display","none");
+                $("#topping2text").css("display","none");
+                $("#topping3text").css("display","none");
+            }
+
+            if(typeof menuSelected.toppings[2] === 'undefined') {
+                $("#topping3").css("display","none");
+                $("#topping3text").css("display","none");
+            }
+
+        });
+
+    });
+
+        $("#section3 img").on("mouseover",function(event){
+            const id = $(this).attr('id');
+            $( `#section3 .tooltiptext#${id}1`).css("visibility","visible")
+        }).on("mouseout",function(event){
+            const id = $(this).attr('id');
+            $(`#section3 .tooltiptext#${id}1`).css("visibility","hidden")
+        })
+
+
+    document.getElementById('sliderIce').addEventListener('input', function (e) {
+        const sliderVal = +e.target.value;
+        $("#temperature").html(`${temperatureScale(sliderVal)}`);
+        $(".temp_img").removeClass("tempSelected");
+        $(".tempText").removeClass("tempSelected");
+        $(`#temp${sliderVal}img`).addClass("tempSelected");
+        $(`#temp${sliderVal}text`).addClass("tempSelected");
+        $("#tempSelected").css("display","inline");
+        $("#tempSelected").attr("src",`./img/temp/${temperatureScale(sliderVal)}.png`);
+        $("#tempSelectedText").css("display","inline");
+        $("#tempSelectedText").html(`${temperatureScale(sliderVal)}`);
+    }); //end slider input
+
+    document.getElementById('sliderIce').addEventListener('mouseover', function (e) {
+        $("#sliderIce").css("height",6)
+        $("#sliderIce").css("cursor","pointer")
+    });
+
+    document.getElementById('sliderIce').addEventListener('mouseout', function (e) {
+        $("#sliderIce").css("height",4)
+        $("#sliderIce").css("cursor","pointer")
+    });
+
+    document.getElementById('sliderSweet').addEventListener('input', function (e) {
+        const sliderVal = +e.target.value;
+        $("#sweetness").html(`${sweetnessScale(sliderVal)}%`);
+        $(".sweet_img").removeClass("sweetSelected");
+        $(".sweetText").removeClass("sweetSelected");
+        $(`#sweet${sliderVal}img`).addClass("sweetSelected");
+        $(`#sweet${sliderVal}text`).addClass("sweetSelected");
+        $("#sweetSelected").css("display","inline");
+        $("#sweetSelected").attr("src",`./img/sweet/Sugar-${sweetnessScale(sliderVal)}.png`);
+        $("#sweetSelectedText").css("display","inline");
+        $("#sweetSelectedText").html(`${sweetnessScale(sliderVal)}%`);
+    }); //end slider input
+
+    document.getElementById('sliderSweet').addEventListener('mouseover', function (e) {
+        $("#sliderSweet").css("height",6)
+        $("#sliderSweet").css("cursor","pointer")
+    });
+
+    document.getElementById('sliderSweet').addEventListener('mouseout', function (e) {
+        $("#sliderSweet").css("height",4)
+        $("#sliderSweet").css("cursor","pointer")
+    });
+
+    $("#sectionStraw img").on("click",function(event){
+        event.preventDefault();
+
+        $("#sectionStraw img").css("background-color","white");
+        $(this).css("background-color","#fcf2d8");
+
+        let selectedStrawText = $(this).parent().find(".strawText").text();
+        menuSelected.straw = selectedStrawText;
+        $("#straw").html(` ${menuSelected.straw}`);
+        if(menuSelected.straw=="I brought my own"){
+            $("#finalStraw").html("You brought your own reusable straw. Thanks for doing your part to help the planet!");
+        }else if(menuSelected.straw=="Wide boba straw"){
+            $("#finalStraw").html("You chose a wide boba straw to enjoy your toppings.");
+        }else{
+            $("#finalStraw").html("You chose a regular straw.");
+        }
+    });
+
+    $("#sectionBag img").on("click",function(event){
+        event.preventDefault();
+
+        $("#sectionBag img").css("background-color","white");
+        $(this).css("background-color","#fcf2d8");
+
+        let selectedBagText = $(this).parent().find(".bagText").text();
+        menuSelected.bag = selectedBagText;
+
+        $("#bag").html(`, ${menuSelected.bag=="I brought my own"?menuSelected.bag:menuSelected.bag.toLowerCase()}`);
+        if(menuSelected.bag=="I brought my own"){
+            $("#finalBag").html("You brought your own. Thanks for doing one small step to save the planet.");
+        }else if(menuSelected.bag=="No bag"){
+            $("#finalBag").html("You didn't take a bag. Thanks for doing one small step to save the planet.");
+        }else{
+            $("#finalBag").html("You took a bag.");
+        }
+    });
+
+
+
+    const flatten = root => {
+        const nodes = [];
+        let i = 0;
+
+        function recurse(node) {
+            if (node.children) node.children.forEach(recurse);
+            if (node._children) node._children.forEach(recurse);
+            if (!node.id) node.id = ++i;
+            nodes.push(node);
+        }
+
+        recurse(root);
+        return nodes;
+    }
+
+
+    const update = source => {
+
+        d3.selectAll("path.path").style("stroke", function (d) {
+
+            if (d.target.color) {
+                return d.target.color
+            } else {
+                return colorScale(d3.select(this).attr("class"))
+            }
+        })
+
+        d3.selectAll("path.path").style("stroke-width", function (d) {
+
+            if (d.target.stroke) {
+                return +d.target.stroke
+            } else {
+                // strokeScale(d3.select(this).attr("class"))
+                return 3
+            }
+        })
+
+    }
+
+    const doReset = () => {
+        flatten(vRoot).forEach(function (d) {
+            //console.log(d)
+            d.color = undefined;
+            d.stroke = undefined;
+        })
+        update(vRoot);
+    }
+
+}
+</script>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P5P0237D7H"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-P5P0237D7H');
+</script>
+</body>
