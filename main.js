@@ -1,6 +1,5 @@
 window.onload = function () {
-
-
+    
     $("#topBarClose").on("click", function (event) {
         $(".topBar").css("display", "none");
         $(".topBar").css("opacity", 0);
@@ -15,7 +14,6 @@ window.onload = function () {
             return;
         }
     });
-
 
     const node = document.getElementById('finalPrint');
 
@@ -32,9 +30,7 @@ window.onload = function () {
     })
 
     const tooltip = floatingTooltip('tooltip', 200);
-
-
-
+    
     let menuSelected = {
         "base": "",
         "drink": "",
@@ -161,16 +157,13 @@ window.onload = function () {
         const groupingFns = [d => d.Base, d => d.Base2, d => d.Milk, d => d.Flavor, d => d.Texture, d => d.drinkEN]
         const rollupData = d3.rollup(data, reduceFn, ...groupingFns);
         const childrenAccessorFn = ([key, value]) => value.size && Array.from(value)
-
         const hierarchyData = d3.hierarchy([null, rollupData], childrenAccessorFn)
             .sum(([key, value]) => value)
             .sort(function (a, b) {
                 if (a.data[0] == "No") return -1;
                 return b.value - a.value;
             })
-
         return hierarchyData;
-
     }
 
     //wrap text
@@ -407,7 +400,6 @@ window.onload = function () {
         const classNameImg = className + "Img";
         const classNameText = className + "Text";
 
-
         if (classNameImg == "level7Img") {
             setTimeout(
                 function () {
@@ -417,7 +409,6 @@ window.onload = function () {
         } else {
             drawImage(classNameImg, dataText)
         }
-
 
         setTimeout(
             function () {
@@ -485,7 +476,6 @@ window.onload = function () {
 
 
     //selected
-
     let clicked = false;
     let selected;
     let selectedString;
@@ -530,7 +520,6 @@ window.onload = function () {
             clicked = true;
         }
 
-
         setTimeout(
             function () {
                 clickDisabled = false;
@@ -541,11 +530,9 @@ window.onload = function () {
 
     });
 
-
     closeModal.on("click", function () {
         modal.css("display", "none");
     });
-
 
     //toppings on click
     $("#section3 img").on("click", function (event) {
@@ -730,8 +717,6 @@ window.onload = function () {
         }
     });
 
-
-
     const flatten = root => {
         const nodes = [];
         let i = 0;
@@ -742,16 +727,12 @@ window.onload = function () {
             if (!node.id) node.id = ++i;
             nodes.push(node);
         }
-
         recurse(root);
         return nodes;
     }
 
-
     const update = source => {
-
         d3.selectAll("path.path").style("stroke", function (d) {
-
             if (d.target.color) {
                 return d.target.color
             } else {
@@ -779,5 +760,4 @@ window.onload = function () {
         })
         update(vRoot);
     }
-
 }
